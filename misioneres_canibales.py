@@ -151,3 +151,31 @@ def reconstruir_plan(padres, estado_final: Estado) -> list[tuple[Accion, Estado]
         plan.append((accion, estado))
         estado = estado_padre
     return plan[::-1]
+
+
+def validar_plan(problema: Problema, plan) -> bool:
+    """
+    Reproduce el plan desde el estado inicial y comprueba que termina en la meta
+    """
+    estado = problema.estado_inicial
+    for accion, estado_esperado in plan:
+        estado = problema.modelo_transicion(estado, accion)
+        if estado != estado_esperado:
+            return False
+    return estado == problema.estado_meta
+
+
+def ramificacion_efectiva(nodos_generados: int, profundidad: int) -> float:
+    """
+    Factor b* que cumple: nodos_generados + 1 = 1 + b* + b*^2 + .... + b*^profundidad
+    """
+
+    limite_inferior, limite_superior = 1.0, float(nodos_generados)
+    for _ in range(60):
+        candidato = (limite_inferior + limite_superior) / 2
+        suma = sum(candidato**potencia for potencia in range(profundidad + 1))
+        if suma < nodos_generados + 1:
+            limite_inferior = candidato
+        else:
+            limite_superior = candidato
+    return (limite_inferior + limite_superior) / 2
