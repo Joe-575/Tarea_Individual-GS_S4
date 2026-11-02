@@ -237,3 +237,17 @@ if __name__ == "__main__":
         plan = buscar(caso_base, estrategia).plan
         for numero_paso, (accion, estado) in enumerate(plan, start=1):
             print(f"  {numero_paso:02d}. {describir(accion, estado):<26} -> {estado}")
+
+        print(
+            "\n== Casos límite y escalabilidad (personas por tipo, capacidad del bote) =="
+        )
+    for personas, capacidad in [(4, 3), (5, 3), (4, 2), (6, 4), (8, 4)]:
+        sin_solucion = "  (sin solución)" if (personas, capacidad) == (4, 2) else ""
+        print(f"\npersonas={personas}, capacidad={capacidad}{sin_solucion}")
+        problema = Problema(personas, capacidad)
+        imprimir_tabla(
+            [
+                medir(problema, estrategia, repeticiones=50)
+                for estrategia in ("bfs", "dfs")
+            ]
+        )
