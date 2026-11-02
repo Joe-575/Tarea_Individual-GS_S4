@@ -200,7 +200,7 @@ def medir(problema: Problema, estrategia: str, repeticiones: int = 500) -> dict:
         "Algoritmo": estrategia.upper(),
         "Expandidos": resultado.nodos_expandidos,
         "Generados": resultado.nodos_generados,
-        "Frontera máx.": resultado.tamano_max_frontera,
+        "Frontera máx.": resultado.tamanio_max_frontera,
         "Tiempo (s)": median(tiempos_s),
         "Longitud": longitud,
         "b*": (
@@ -225,3 +225,15 @@ def describir(accion: Accion, estado_resultante: Estado) -> str:
     bote_izq = estado_resultante[2]
     sentido = "Izq -> Der" if bote_izq == 0 else "Der -> Izq"
     return f"{misioneros}M, {canibales}C ({sentido})"
+
+
+if __name__ == "__main__":
+    caso_base = Problema(personas_por_tipo=3, capacidad_bote=2)
+    print("== Caso base: 3 misioneros, 3 caníbales, bote de 2 ==")
+    imprimir_tabla([medir(caso_base, estrategia) for estrategia in ("bfs", "dfs")])
+
+    for estrategia in ("bfs", "dfs"):
+        print(f"\nPlan {estrategia.upper()}:")
+        plan = buscar(caso_base, estrategia).plan
+        for numero_paso, (accion, estado) in enumerate(plan, start=1):
+            print(f"  {numero_paso:02d}. {describir(accion, estado):<26} -> {estado}")
