@@ -52,3 +52,19 @@ class Problema:
                 if misioneros + canibales <= capacidad
             ]
         )
+
+
+def es_estado_valido(self, misioneros_izq: int, canibales_izq: int) -> bool:
+    """
+    Válido si hay
+    """
+    total = self.personas_por_tipo
+    misioneros_der = total - misioneros_izq
+    canibales_der = total - canibales_izq
+
+    if not (0 <= misioneros_izq <= total and 0 <= canibales_izq <= total):
+        return False
+
+    izquierda_segura = misioneros_der == 0 or misioneros_izq >= canibales_izq
+    derecha_segura = misioneros_der == 0 or misioneros_der >= canibales_der
+    return izquierda_segura and derecha_segura
