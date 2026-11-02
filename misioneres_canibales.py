@@ -179,3 +179,42 @@ def ramificacion_efectiva(nodos_generados: int, profundidad: int) -> float:
         else:
             limite_superior = candidato
     return (limite_inferior + limite_superior) / 2
+
+
+def medir(problema: Problema, estrategia: str, repeticiones: int = 500) -> dict:
+    """Tiempo (mediana, sin tracemalloc) y memoria pico (corrida aparte) para no mezclarlos."""
+    tiempos_s = []
+    for _ in range(repeticiones):
+        inicio = time.perf_counter()
+        resultado = buscar(problema, estrategia)
+        tiempos_s.append(time.perf_counter() - inicio)
+
+    tracemalloc.start()
+    buscar(problema, estrategia)
+    memoria_pico_bytes = tracemalloc.get_traced_memory()[1]
+    tracemalloc.stop()
+
+    plan = resultado.plan
+    longitud = len(plan) if plan else None
+    return {
+        "Algoritmo": estrategia.upper(),
+        "Expandidos": resultado.nodos_expandidos,
+        "Generados": resultado.nodos_generados,
+        "Frontera máx.": resultado.tamano_max_frontera,
+        "Tiempo (s)": median(tiempos_s),
+        "Longitud": longitud,
+        "b*": (
+            ramificacion_efectiva(resultado.nodos_generados, longitud)
+            if longitud
+            else None
+        ),
+        "Mem. pico (B)": memoria_pico_bytes,
+        "Plan válido": validar_plan(problema, plan) if plan else False,
+    }
+
+
+def imprimir_tabla(filas: list[dict]) -> None:
+    print(" | ".join(f"{columna:>13}" for columna in filas[0]))
+    for fila in filas:
+        celdas = (f"{v:.3e}" if isinstance(v, float) else str(v) for v in fila.values())
+        print(" | ".join(f"{celda:>13}" for celda in celdas))
