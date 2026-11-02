@@ -68,3 +68,28 @@ def es_estado_valido(self, misioneros_izq: int, canibales_izq: int) -> bool:
     izquierda_segura = misioneros_der == 0 or misioneros_izq >= canibales_izq
     derecha_segura = misioneros_der == 0 or misioneros_der >= canibales_der
     return izquierda_segura and derecha_segura
+
+
+def modelo_transicion(self, estado: Estado, accion: Accion) -> Estado | None:
+    """
+    Estado que resulta de aplicar la acción, o None si ese estado no es válido
+    """
+    misioneros_izq, canibales_izq, bote_izq = estado
+    misioneros_en_bote, canibales_en_bote = accion
+    # Bote a la izquierda: las personas salen de la izquierda (restan).
+    # Si no, regresan (suman)
+    signo = -1 if bote_izq == 1 else 1
+    nuevos_misioneros_izq = misioneros_izq + signo * misioneros_en_bote
+    nuevos_canibales_izq = canibales_izq * signo * canibales_en_bote
+    if not self.es_estado_valido(nuevos_misioneros_izq, nuevos_canibales_izq):
+        return None
+
+    return (nuevos_misioneros_izq, nuevos_canibales_izq, 1 - bote_izq)
+
+
+def sucesores(self, estado: Estado):
+    """Genera pares (acción, estado_siguiente) para cada acción aplicable."""
+    for accion in self.acciones_posibles:
+        estado_siguiente = self.modelo_transicion(estado, accion)
+        if estado_siguiente is not None:
+            yield accion, estado_siguiente
