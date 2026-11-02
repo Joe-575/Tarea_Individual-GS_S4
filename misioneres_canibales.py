@@ -93,3 +93,11 @@ def sucesores(self, estado: Estado):
         estado_siguiente = self.modelo_transicion(estado, accion)
         if estado_siguiente is not None:
             yield accion, estado_siguiente
+
+
+@dataclass
+class Resultado:
+    plan: list[tuple[Accion, Estado]] | None
+    nodos_expandidos: int
+    nodos_generados: int
+    tamanio_max_frontera: int
