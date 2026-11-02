@@ -98,3 +98,56 @@ class Resultado:
     nodos_expandidos: int
     nodos_generados: int
     tamanio_max_frontera: int
+
+
+def buscar(problema: Problema, estrategia: str) -> Resultado:
+    """Búsqueda en grafo con conjunto de estados ya explorados.
+    'bfs' -> cola FIFO (marca los estados al generarlos).
+    'dfs' -> pila LIFO (marca los estados al expandirlos).
+    La prueba de meta se hace al expandir en ambas, para que 'nodos expandidos' sea comparable.
+    """
+    usa_cola = estrategia == "bfs"
+    frontera = deque(
+        [(problema.estado_inicial, None)]
+    )  # elementos: (estado, (estado_padre, acción))
+    padres: dict[Estado, tuple[Estado, Accion] | None] = (
+        {}
+    )  # estados ya expandidos y de dónde vinieron
+    estados_vistos = {problema.estado_inicial}
+    nodos_expandidos = nodos_generados = tamano_max_frontera = 0
+
+    while frontera:
+        tamano_max_frontera = max(tamano_max_frontera, len(frontera))
+        estado_actual, origen = frontera.popleft() if usa_cola else frontera.pop()
+        if estado_actual in padres:  # DFS: duplicado que se apiló antes de expandirse
+            continue
+        padres[estado_actual] = origen
+        nodos_expandidos += 1
+
+        if estado_actual == problema.estado_meta:
+            plan = reconstruir_plan(padres, estado_actual)
+            return Resultado(
+                plan, nodos_expandidos, nodos_generados, tamano_max_frontera
+            )
+
+        for accion, estado_siguiente in problema.sucesores(estado_actual):
+            if (
+                usa_cola and estado_siguiente in estados_vistos
+            ) or estado_siguiente in padres:
+                continue
+            estados_vistos.add(estado_siguiente)
+            frontera.append((estado_siguiente, (estado_actual, accion)))
+            nodos_generados += 1
+
+    return Resultado(None, nodos_expandidos, nodos_generados, tamano_max_frontera)
+
+
+def reconstruir_plan(padres, estado_final: Estado) -> list[tuple[Accion, Estado]]:
+    """Recorre los padres desde la meta hasta el inicio y devuelve el plan en orden."""
+    plan = []
+    estado = estado_final
+    while padres[estado] is not None:
+        estado_padre, accion = padres[estado]
+        plan.append((accion, estado))
+        estado = estado_padre
+    return plan[::-1]
