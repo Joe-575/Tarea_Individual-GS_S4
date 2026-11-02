@@ -218,3 +218,10 @@ def imprimir_tabla(filas: list[dict]) -> None:
     for fila in filas:
         celdas = (f"{v:.3e}" if isinstance(v, float) else str(v) for v in fila.values())
         print(" | ".join(f"{celda:>13}" for celda in celdas))
+
+
+def describir(accion: Accion, estado_resultante: Estado) -> str:
+    misioneros, canibales = accion
+    bote_izq = estado_resultante[2]
+    sentido = "Izq -> Der" if bote_izq == 0 else "Der -> Izq"
+    return f"{misioneros}M, {canibales}C ({sentido})"
